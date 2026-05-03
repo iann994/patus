@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motorcycle Site Demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/ScrollTrigger.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .bg-tire {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60vw;
+            height: 60vh;
+            background: url('https://i.imgur.com/placeholder-tire.png') center/cover no-repeat;
+            opacity: 0.3;
+            z-index: -1;
+            filter: grayscale(100%);
+        }
+
+        .window-container {
+            width: 80vw;
+            height: 80vh;
+            background-color: #f0f0f0;
+            color: #000;
+            position: relative;
+            margin: 10vh auto;
+            border: 1px solid #000;
+            overflow: hidden;
+        }
+
+        .window-header {
+            height: 40px;
+            border-bottom: 1px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 20px;
+        }
+
+        .header-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #000;
+        }
+
+        .window-search {
+            width: 180px;
+            height: 24px;
+            background-color: #ddd;
+            border-radius: 12px;
+            border: none;
+            outline: none;
+            padding: 0 10px;
+            font-size: 14px;
+        }
+
+        .window-content {
+            display: flex;
+            height: calc(100% - 40px);
+            position: relative;
+        }
+
+        .divider {
+            width: 1px;
+            height: 100%;
+            background-color: #000;
+            position: absolute;
+            top: 0;
+        }
+        .divider.left { left: 37px; }
+        .divider.center { left: 50%; transform: translateX(-50%); }
+        .divider.right { right: 80px; }
+
+        .left-section {
+            width: 50%;
+            height: 100%;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .main-title {
+            font-size: 180px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 40px;
+        }
+
+        .title-letter {
+            display: inline-block;
+        }
+        .title-letter.dim {
+            color: #ccc;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #555;
+            max-width: 80%;
+        }
+
+        .star-img {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            transform: translateX(-250%) rotate(0deg);
+        }
+
+        .right-section {
+            width: calc(50% - 80px);
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-left: 80px;
+        }
+
+        .motorcycle-img {
+            width: 90%;
+            max-width: 600px;
+            transform: translateX(-100%);
+            animation: slideInBounce 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes slideInBounce {
+            0% { transform: translateX(-100%); }
+            70% { transform: translateX(5%); }
+            85% { transform: translateX(-3%); }
+            100% { transform: translateX(0); }
+        }
+
+        .motorcycle-btn {
+            position: absolute;
+            top: 15%;
+            right: 15%;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .motorcycle-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .vertical-nav {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: #000;
+            text-decoration: none;
+            font-size: 14px;
+            writing-mode: vertical-rl;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        /* 三大標題 維持 30px */
+        .service-title,
+        .product-title,
+        .info-main-title {
+            text-align: center;
+            font-size: 30px;
+            color: #222;
+            margin-bottom: 50px;
+            letter-spacing: 3px;
+            font-weight: 600;
+        }
+
+        .service-section {
+            width: 80vw;
+            margin: 0 auto 15vh;
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 70px 30px;
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-evenly;
+            margin-bottom: 40px;
+        }
+        .card-row.row-2 {
+            justify-content: center;
+            gap: 60px;
+            margin-bottom: 0;
+        }
+
+        .service-card {
+            width: 250px;
+            text-align: center;
+        }
+
+        .card-box {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background-color: #f5f5f5;
+            border-radius: 20px;
+            border: none;
+            margin-bottom: 22px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .card-box:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+        }
+
+        /* 卡片內文 改成 20px */
+        .card-text {
+            color: #444;
+            font-size: 20px;
+            line-height: 1.6;
+            padding: 0 10px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .product-section {
+            width: 80vw;
+            margin: 0 auto 15vh;
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 70px 30px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 35px;
+        }
+
+        .product-card {
+            text-align: center;
+        }
+
+        .product-img {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #f5f5f5;
+            border-radius: 6px;
+            border: none;
+            margin-bottom: 18px;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: transform 0.3s ease;
+        }
+
+        .product-img:hover {
+            transform: translateY(-6px);
+        }
+
+        .product-name {
+            color: #222;
+            font-size: 20px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .info-section {
+            width: 80vw;
+            margin: 0 auto 15vh;
+            background-color: #e9e9e9;
+            border-radius: 20px;
+            padding: 70px 50px;
+        }
+
+        .info-card {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        .info-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-img {
+            width: 380px;
+            height: 300px;
+            background-color: #fff;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .info-title {
+            font-size: 20px;
+            color: #222;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .info-desc {
+            font-size: 20px;
+            color: #444;
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .more-btn {
+            display: inline-block;
+            padding: 10px 24px;
+            background-color: #000;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .more-btn:hover {
+            background-color: #333;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            width: 100%;
+            background-color: #222;
+            color: #ccc;
+            padding: 60px 0 30px;
+        }
+
+        .footer-container {
+            width: 80vw;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        .footer-col {
+            min-width: 160px;
+        }
+
+        .footer-title {
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .footer-link {
+            display: block;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            width: 80vw;
+            margin: 40px auto 0;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            text-align: center;
+            font-size: 13px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-tire"></div>
+
+    <div class="window-container">
+        <div class="window-header">
+            <div class="header-group">
+                <div class="dot"></div>
+                <input type="text" class="window-search" placeholder="Search...">
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+
+        <div class="window-content">
+            <div class="divider left"></div>
+            <div class="divider.center"></div>
+            <div class="divider.right"></div>
+
+            <div class="left-section">
+                <h1 class="main-title">
+                    <span class="title-letter">R</span>
+                    <span class="title-letter dim">C</span>
+                    <span class="title-letter dim">i</span>
+                    <span class="title-letter">r</span>
+                    <span class="title-letter">i</span>
+                    <span class="title-letter">l</span>
+                </h1>
+                <p class="subtitle">Flinging a new life with the best tyres</p>
+                <img class="star-img" src="https://res.cloudinary.com/do3p1vjeh/image/upload/v1777725554/image-removebg-preview_l3t8bx.png" alt="Decorative">
+            </div>
+
+            <div class="right-section">
+                <img src="https://i.imgur.com/8Z7X7yY.png" alt="Motorcycle" class="motorcycle-img">
+                <div class="motorcycle-btn">360<br>view</div>
+            </div>
+
+            <!-- 只保留英文 移除所有中文 -->
+            <nav class="vertical-nav">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#survey" class="nav-link">Survey</a>
+                <a href="#goal" class="nav-link">Goal</a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="service-section">
+        <h2 class="service-title">SERVE</h2>
+        <div class="card-row row-1">
+            <div class="service-card">
+                <div class="card-box"></div>
+                <p class="card-text">Professional tire replacement & balancing</p>
+            </div>
+            <div class="service-card">
+                <div class="card-box"></div>
+                <p class="card-text">Tire maintenance & wear inspection</p>
+            </div>
+            <div class="service-card">
+                <div class="card-box"></div>
+                <p class="card-text">Custom tire consultation & recommendation</p>
+            </div>
+        </div>
+        <div class="card-row row-2">
+            <div class="service-card">
+                <div class="card-box"></div>
+                <p class="card-text">Chassis & suspension system inspection</p>
+            </div>
+            <div class="service-card">
+                <div class="card-box"></div>
+                <p class="card-text">Roadside assistance & on-site repair</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="product-section">
+        <h2 class="product-title">PRODUCTS</h2>
+        <div class="product-grid">
+            <div class="product-card">
+                <div class="product-img"></div>
+                <p class="product-name">Premium Tire A</p>
+            </div>
+            <div class="product-card">
+                <div class="product-img"></div>
+                <p class="product-name">Premium Tire B</p>
+            </div>
+            <div class="product-card">
+                <div class="product-img"></div>
+                <p class="product-name">Premium Tire C</p>
+            </div>
+            <div class="product-card">
+                <div class="product-img"></div>
+                <p class="product-name">Premium Tire D</p>
+            </div>
+            <div class="product-card">
+                <div class="product-img"></div>
+                <p class="product-name">Premium Tire E</p>
+            </div>
+            <div class="product-card">
+                <div class="product-img"></div>
+                <p class="product-name">Premium Tire F</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <h2 class="info-main-title">Information｜Research</h2>
+        <div class="info-card">
+            <div class="info-img"></div>
+            <div class="info-content">
+                <h3 class="info-title">Founder Message</h3>
+                <p class="info-desc">As motorcycle enthusiasts, we believe tires are not just consumables, but the core of safety and riding experience. We aim to provide high-quality, cost-effective tires with professional installation and maintenance for every rider.</p>
+                <a href="#" class="more-btn">More</a>
+            </div>
+        </div>
+        <div class="info-card">
+            <div class="info-img"></div>
+            <div class="info-content">
+                <h3 class="info-title">Energy-Saving Tire Research</h3>
+                <p class="info-desc">Our team continuously develops low rolling resistance tire compounds for different vehicle types and scenarios. Optimized tread patterns and rubber materials achieve energy efficiency, durability, and improved grip performance.</p>
+                <a href="#" class="more-btn">More</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <h4 class="footer-title">About Us</h4>
+                <a href="#" class="footer-link">Brand Concept</a>
+                <a href="#" class="footer-link">Founder Message</a>
+                <a href="#" class="footer-link">R&D Team</a>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Products & Services</h4>
+                <a href="#" class="footer-link">Tire Products</a>
+                <a href="#" class="footer-link">Maintenance Service</a>
+                <a href="#" class="footer-link">Technical Support</a>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Careers</h4>
+                <a href="#" class="footer-link">Job Openings</a>
+                <a href="#" class="footer-link">Work Culture</a>
+                <a href="#" class="footer-link">Benefits</a>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Contact</h4>
+                <a href="#" class="footer-link">Store Locations</a>
+                <a href="#" class="footer-link">Customer Service</a>
+                <a href="#" class="footer-link">Online Inquiry</a>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Legal</h4>
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Copyright Notice</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2025 Rciril Motorcycle Tyres. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        gsap.to(".star-img", {
+            x: 0,
+            rotate: 360,
+            duration: 3,
+            ease: "power2.out"
+        });
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        ScrollTrigger.create({
+            trigger: ".row-1",
+            start: "top 85%",
+            once: true,
+            animation: gsap.timeline()
+            .to(".row-1 .card-box", {opacity: 1, y: 0, duration: 0.6, ease: "power2.out"})
+            .to(".row-1 .card-text", {opacity: 1, y: 0, duration: 0.5, ease: "power2.out"}, "-=0.15")
+        });
+
+        ScrollTrigger.create({
+            trigger: ".row-2",
+            start: "top 85%",
+            once: true,
+            animation: gsap.timeline()
+            .to(".row-2 .card-box", {opacity: 1, y: 0, duration: 0.6, ease: "power2.out"})
+            .to(".row-2 .card-text", {opacity: 1, y: 0, duration: 0.5, ease: "power2.out"}, "-=0.15")
+        });
+
+        ScrollTrigger.create({
+            trigger: ".product-section",
+            start: "top 85%",
+            once: true,
+            animation: gsap.timeline()
+            .to(".product-img", {opacity: 1, y: 0, duration: 0.6, ease: "power2.out"})
+            .to(".product-name", {opacity: 1, y: 0, duration: 0.5, ease: "power2.out"}, "-=0.15")
+        });
+
+        ScrollTrigger.create({
+            trigger: ".info-section",
+            start: "top 85%",
+            once: true,
+            animation: gsap.timeline()
+            .to(".info-card", {
+                opacity: 1,
+                y: 0,
+                duration: 0.7,
+                ease: "power2.out",
+                stagger: 0.2
+            })
+        });
+
+        const btn = document.querySelector('.motorcycle-btn');
+        btn.addEventListener('mouseenter', () => btn.style.transform = 'scale(1.05)');
+        btn.addEventListener('mouseleave', () => btn.style.transform = 'scale(1)');
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', e => {
+                e.preventDefault();
+                document.querySelector(anchor.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
+            });
+        });
+    </script>
+</body>
+</html>
